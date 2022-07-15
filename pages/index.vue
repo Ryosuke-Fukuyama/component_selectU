@@ -1,5 +1,5 @@
 <template>
-  <Tutorial/>
+  <status_change></status_change>
 </template>
 
 <script>

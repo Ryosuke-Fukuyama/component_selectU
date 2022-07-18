@@ -3,7 +3,7 @@
     <ul>
       <li v-for="property in properties" :key="property.id">
         {{ property.content }}
-        <select  @click="update()">
+        <select v-model="content" @input="contentUpdate(property.id, $event)">
           <option disabled value="">{{ property.content }}</option>
           <option>"content A"</option>
           <option>"content B"</option>
@@ -17,9 +17,10 @@
 <script>
 export default {
   data:() => ({
-    properties: [],
+    id: '',
+    content: '',
     property: {},
-    content: ''
+    properties: [],
   }),
 
 // ページがマウントされたタイミングでfetchContents()を実行
@@ -34,7 +35,7 @@ export default {
           content: this.content
         }
       }
-    },
+    }
   },
 
   methods: {
@@ -51,14 +52,26 @@ export default {
         this.properties = res.data.properties
         })
     },
-    update() {
-      const url = `/api/v1/properties/${this.$route.params.id}`
-      this.$axios.put(url, this.params)
+    contentUpdate(id, $event) {
+      // debugger;
+      this.params.property.content = $event.target.value
+      const url = `/api/v1/properties/${id}`
+      this.$axios.patch(url, this.params)
         .then((res) => {
-          // 成功時の処理
+          // 成功時の処理s
+          fetchContents()
+          this.$bvToast.toast(res.data, {
+            title: '成功',
+            variant: 'success'
+          })
         })
         .catch((err) => {
           // 失敗時の処理
+          const message = err.response.data
+          this.$bvToast.toast(message, {
+            title: '失敗',
+            variant: 'danger'
+          })
         })
     }
   }

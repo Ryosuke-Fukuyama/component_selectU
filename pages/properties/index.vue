@@ -3,11 +3,11 @@
     <ul>
       <li v-for="property in properties" :key="property.id">
         {{ property.content }}
-        <select v-model="content" @input="contentUpdate(property.id, $event)">
+        <select v-model.lazy="selected" @change="contentUpdate(property.id, $event)">
           <option disabled value="">{{ property.content }}</option>
-          <option>"content A"</option>
-          <option>"content B"</option>
-          <option>"content C"</option>
+          <option value="content A">"content A"</option>
+          <option value="content B">"content B"</option>
+          <option value="content C">"content C"</option>
         </select>
       </li>
     </ul>
@@ -15,15 +15,17 @@
 </template>
 
 <script>
-export default {
-  data:() => ({
-    id: '',
-    content: '',
-    property: {},
-    properties: [],
-  }),
+// import $axios from "@nuxtjs/axios"
 
-// ページがマウントされたタイミングでfetchContents()を実行
+export default {
+  data:() => {
+    return {
+      properties: [],
+      id: '',
+      selected: '',
+    }
+  },
+
   mounted() {
     this.fetchContents()
   },
@@ -33,45 +35,32 @@ export default {
       return {
         property: {
           content: this.content
-        }
+        },
+        // authenticity_token: ''
       }
     }
   },
 
   methods: {
-    fetchContents() {
-      const url = "/api/v1/properties"
-      this.$axios.get(url)
-        .then((res) => {
-        //   // リクエスト成功時の処理
-        //   console.log(res)
-        // })
-        // .catch(() => {
-        //   // リクエスト失敗時の処理
-        // })
+    async fetchContents() {
+      const res_index = await this.$axios.get('/api/v1/properties').then((res) => {
         this.properties = res.data.properties
-        })
+      })
     },
-    contentUpdate(id, $event) {
-      // debugger;
-      this.params.property.content = $event.target.value
+
+    async contentUpdate(id, $event) {
       const url = `/api/v1/properties/${id}`
-      this.$axios.patch(url, this.params)
-        .then((res) => {
-          // 成功時の処理s
-          fetchContents()
-          this.$bvToast.toast(res.data, {
-            title: '成功',
-            variant: 'success'
-          })
-        })
+      const res_data = await this.$axios.get(url)
+      debugger;
+      const token = res_data.value
+      this.params.property = res_data.property
+      this.params.property.content = $event.target.value
+      const res_new_data = await this.$axios.patch(url, this.params, { headers: {
+                                                  Authorization: `Bearer ${token}`
+                                                  }})
+        .fetchContents()
         .catch((err) => {
-          // 失敗時の処理
           const message = err.response.data
-          this.$bvToast.toast(message, {
-            title: '失敗',
-            variant: 'danger'
-          })
         })
     }
   }

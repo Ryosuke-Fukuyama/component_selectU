@@ -9,6 +9,9 @@
           <option value="content B">"content B"</option>
           <option value="content C">"content C"</option>
         </select>
+        <div  v-if="modalFlag">
+          <Modal />
+        </div>
       </li>
     </ul>
   </div>
@@ -21,8 +24,10 @@ export default {
   data:() => {
     return {
       properties: [],
+      // property: {},
       id: '',
       selected: '',
+      modalFlag: false
     }
   },
 
@@ -30,16 +35,15 @@ export default {
     this.fetchContents()
   },
 
-  computed: {
-    params() {
-      return {
-        property: {
-          content: this.content
-        },
-        // authenticity_token: ''
-      }
-    }
-  },
+  // computed: {
+  //   params() {
+  //     return {
+  //       property: {
+  //         content: this.content
+  //       },
+  //     }
+  //   }
+  // },
 
   methods: {
     async fetchContents() {
@@ -51,17 +55,25 @@ export default {
     async contentUpdate(id, $event) {
       const url = `/api/v1/properties/${id}`
       const res_data = await this.$axios.get(url)
-      debugger;
-      const token = res_data.value
-      this.params.property = res_data.property
-      this.params.property.content = $event.target.value
-      const res_new_data = await this.$axios.patch(url, this.params, { headers: {
+      const update_params = res_data.data.property
+      update_params.content = $event.target.value
+      const token = res_data.data.value
+      this.$axios.patch(url, update_params, { headers: {
                                                   Authorization: `Bearer ${token}`
                                                   }})
-        .fetchContents()
-        .catch((err) => {
-          const message = err.response.data
+        .then(res => {
+          this.fetchContents()
         })
+        .catch((err) => {
+          this.openModal()
+        })
+    },
+
+    openModal() {
+      this.modalFlag = true
+    },
+    closeModal() {
+      this.modalFlag = false
     }
   }
 }

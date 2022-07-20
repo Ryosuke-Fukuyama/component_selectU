@@ -3,14 +3,14 @@
     <ul>
       <li v-for="property in properties" :key="property.id">
         {{ property.content }}
-        <select v-model.lazy="selected" @change="contentUpdate(property.id, $event)">
+        <select v-model.lazy="selected" @change="contentUpdate(property.id, $event)" :key="property.id">
           <option disabled value="">{{ property.content }}</option>
           <option value="content A">"content A"</option>
           <option value="content B">"content B"</option>
           <option value="content C">"content C"</option>
         </select>
         <div  v-if="modalFlag">
-          <Modal />
+          <Modal @close-click="closeModal"></Modal>
         </div>
       </li>
     </ul>
@@ -18,13 +18,11 @@
 </template>
 
 <script>
-// import $axios from "@nuxtjs/axios"
 
 export default {
   data:() => {
     return {
       properties: [],
-      // property: {},
       id: '',
       selected: '',
       modalFlag: false
@@ -35,15 +33,16 @@ export default {
     this.fetchContents()
   },
 
-  // computed: {
-  //   params() {
-  //     return {
-  //       property: {
-  //         content: this.content
-  //       },
-  //     }
-  //   }
-  // },
+  computed: {
+    params() {
+      return {
+        property: {
+          content: this.content,
+          id: this.id
+        }
+      }
+    }
+  },
 
   methods: {
     async fetchContents() {
@@ -52,19 +51,25 @@ export default {
       })
     },
 
-    async contentUpdate(id, $event) {
+    contentUpdate(id, $event) {
       const url = `/api/v1/properties/${id}`
-      const res_data = await this.$axios.get(url)
-      const update_params = res_data.data.property
-      update_params.content = $event.target.value
-      const token = res_data.data.value
-      this.$axios.patch(url, update_params, { headers: {
-                                                  Authorization: `Bearer ${token}`
-                                                  }})
+      // const res_data = await this.$axios.get(url)
+      // const update_params = res_data.data.property
+      this.params.property.content = $event.target.value
+      this.params.property.id = id
+      // const token = res_data.data.value
+      // this.$axios.defaults.headers.common = {
+      //   'X-Requested-With': 'XMLHttpRequest',
+      //   'X-CSRF-TOKEN' : document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      // }
+      this.$axios.patch(url, this.params)
         .then(res => {
           this.fetchContents()
         })
         .catch((err) => {
+          debugger
+          // const error_id = err.config.data.property.id
+          // **modalを表示するselectをidで限定するコード**
           this.openModal()
         })
     },
@@ -72,8 +77,9 @@ export default {
     openModal() {
       this.modalFlag = true
     },
-    closeModal() {
+    closeModal(){
       this.modalFlag = false
+      this.fetchContents()
     }
   }
 }

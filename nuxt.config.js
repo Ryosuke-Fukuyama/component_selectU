@@ -51,7 +51,13 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: '/',
+    baseURL: process.env.BASE_APP_URL || '/',
+    // requestInterceptor (config, { store }) {
+    //   if (store.state.csrfToken) {
+    //     config.headers.common['x-csrf-token'] = store.state.csrfToken
+    //   }
+    //   return config
+    // }
   },
 
   proxy: {

@@ -27,6 +27,8 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    // '~/plugins/firebase'
+    // { src: '~/plugins/firebase', ssr: false }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -34,6 +36,7 @@ export default {
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
+    '@nuxtjs/dotenv'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -41,6 +44,7 @@ export default {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     '@nuxtjs/proxy',
+    '@nuxtjs/firebase',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -55,10 +59,25 @@ export default {
     }
   },
 
+  firebase: {
+    config: {
+      apiKey: process.env.API_KEY,
+      authDomain: process.env.AUTH_DOMAIN,
+      projectId: process.env.PROJECT_ID,
+      storageBucket: process.env.STORAGE_BUCKET,
+      messagingSenderId: process.env.MESSAGING_SENDER_ID,
+      appId: process.env.APP_ID,
+      measurementId: process.env.MEASUREMENT_ID,
+    },
+    services: {
+      auth: true,
+    },
+  },
+
   env: {
+    projectId: process.env.PROJECT_ID,
     apiKey: process.env.API_KEY,
     authDomain: process.env.AUTH_DOMAIN,
-    projectId: process.env.PROJECT_ID,
     storageBucket: process.env.STORAGE_BUCKET,
     messageSenderId: process.env.MESSAGE_SENDER_ID,
     appId: process.env.APP_ID,

@@ -6,12 +6,15 @@
 </template>
 
 <script>
-
 export default {
   data: () => {
     return {
       message: ''
     }
+  },
+
+  mounted() {
+    // console.log(getAuth())
   },
 
   methods: {
